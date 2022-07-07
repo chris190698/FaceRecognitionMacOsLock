@@ -50,7 +50,7 @@ def add_person() -> None:
         cv2.namedWindow('Saved Face', cv2.WINDOW_NORMAL)
 
         #viene avviato il ciclo per scattare le 20 foto
-        for counter in range(21):
+        for counter in range(1, 21):
 
             _, frame = video.read()
             if counter == 1:
