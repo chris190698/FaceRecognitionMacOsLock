@@ -77,9 +77,11 @@ def add_person() -> None:
 
             else:
 
-                tmp = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 newFolder = folder + '/' + str(counter) + '.jpg'
                 cv2.imwrite(newFolder, frame)
+                tmp = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+
                 newImage = photoBrightnessEvaluate(tmp, newFolder, frame)
                 newFaces = detector.detectMultiScale(newImage)
                 cut_face = cut_faces(frame, newFaces)  # Rimuove le parti inutili del volto
