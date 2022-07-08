@@ -3,6 +3,7 @@ import cv2
 import time
 import os
 from ctypes import CDLL
+from photoPreProcessingFunction import *
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')  # Oggetto del face detector
 
@@ -50,7 +51,7 @@ def add_person() -> None:
         cv2.namedWindow('Saved Face', cv2.WINDOW_NORMAL)
 
         #viene avviato il ciclo per scattare le 20 foto
-        for counter in range(1, 21):
+        for counter in range(0, 21):
 
             _, frame = video.read()
             if counter == 1:
@@ -73,6 +74,13 @@ def add_person() -> None:
                 cv2.imwrite(folder + '/' + str(counter) + '.jpg', face_bw_eq)
                 print('Images Saved:' + str(counter))
                 cv2.imshow('Saved Face', face_bw_eq)  # Mostra la faccia che è stata salvata
+
+            else:
+
+                tmp = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                newFolder = folder + '/' + str(counter) + '.jpg'
+                photoBrightnessEvaluate(tmp, newFolder, frame)
+
 
             cv2.imshow('Video Feed', frame)
             cv2.waitKey(50)
