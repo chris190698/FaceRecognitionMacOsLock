@@ -35,7 +35,8 @@ def photoBrightnessEvaluate(image, folder, frame):
         image
     )  # calculate photo brightness
     if tmpPhotoBrightness < stdRGBMean:  # compare with standard medium value
-        photoProcessor(frame, folder)
+        newImage = photoProcessor(frame, folder)
+        return newImage
 
 
 def photoProcessor(image, folder):
@@ -48,9 +49,10 @@ def photoProcessor(image, folder):
     # Adaptive Equalization
     img_adapteq = exposure.equalize_adapthist(image, clip_limit=0.03)
     io.imsave(
-        folder + "s.jpg",
-        img_adapteq,
+         folder,
+         img_adapteq,
     )
+    return img_adapteq
 
 
 
