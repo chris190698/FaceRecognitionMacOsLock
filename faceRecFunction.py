@@ -68,7 +68,7 @@ def add_person() -> None:
 
                 time.sleep(1)
 
-            # Trova le coordinate di tutta le faccia nel frame
+            # Trova le coordinate di tutta le facce nel frame
             faces = detector.detectMultiScale(frame)
 
             if len(faces):  # Se sono state identificate le coordinate
