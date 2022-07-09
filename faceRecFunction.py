@@ -3,9 +3,16 @@ import cv2
 import time
 import os
 from ctypes import CDLL
-from photoPreProcessingFunction import *
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')  # Oggetto del face detector
+from re import I, X
+from PIL import Image
+from math import sqrt
+import io
+from skimage import exposure
+from skimage import io
+
+face_cascade = cv2.CascadeClassifier(
+    'haarcascade_frontalface_default.xml')  # Oggetto del face detector
 
 '''
 Funzione che taglia alcuni parti della foto, permettendo all'algoritmo di operare solo con quelle più rilevanti.
@@ -14,6 +21,8 @@ Limite: necessario registrare il volto in maniera frontale
 :param faces_coord: cordinate per delimitare il viso
 :return faces: coordinate del volto escluso le parti laterali
 '''
+
+
 def cut_faces(image, faces_coord) -> list:
 
     faces = []
@@ -24,11 +33,14 @@ def cut_faces(image, faces_coord) -> list:
 
     return faces
 
+
 '''
 Funzione che permette l'aggiunta di nuovi utenti al dataset creando opportunamento le directory per ognuno
 :param None
 :return None
 '''
+
+
 def add_person() -> None:
 
     # prende in input  il nome della persona che si vuole registrare
@@ -46,11 +58,12 @@ def add_person() -> None:
         input("Verranno scattate 20 foto. Premere ENTER per avviare la procedura.")
         os.mkdir(folder)  # Crea un nuovo folder per salvare le foto
         video = cv2.VideoCapture()
-        detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')  # Carica l'Haarcascade per identificare il volto.
+        # Carica l'Haarcascade per identificare il volto.
+        detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         cv2.namedWindow('Video Feed', cv2.WINDOW_AUTOSIZE)
         cv2.namedWindow('Saved Face', cv2.WINDOW_NORMAL)
 
-        #viene avviato il ciclo per scattare le 20 foto
+        # viene avviato il ciclo per scattare le 20 foto
         for counter in range(1, 21):
 
             _, frame = video.read()
@@ -62,40 +75,57 @@ def add_person() -> None:
 
                 time.sleep(1)
 
-            faces = detector.detectMultiScale(frame)  # Trova le coordinate di tutta le faccia nel frame
+            # Trova le coordinate di tutta le faccia nel frame
+            faces = detector.detectMultiScale(frame)
 
             if len(faces):  # Se sono state identificate le coordinate
 
-                cut_face = cut_faces(frame, faces)  # Rimuove le parti inutili del volto
+                # Rimuove le parti inutili del volto
+                cut_face = cut_faces(frame, faces)
                 face_bw = cv2.cvtColor(cut_face[0], cv2.COLOR_BGR2GRAY)
-                face_bw_eq = cv2.equalizeHist(face_bw)  # Equalizzazione Istogramma
-                face_bw_eq = cv2.resize(face_bw_eq, (100, 100), interpolation=cv2.INTER_CUBIC)  # Effettua un Resizing dell'immagine in 100x100 pixel
+                # Equalizzazione Istogramma
+                face_bw_eq = cv2.equalizeHist(face_bw)
+                # Effettua un Resizing dell'immagine in 100x100 pixel
+                face_bw_eq = cv2.resize(
+                    face_bw_eq, (100, 100), interpolation=cv2.INTER_CUBIC)
                 # cv2.imshow('Face Recogniser', face_bw_eq)
                 cv2.imwrite(folder + '/' + str(counter) + '.jpg', face_bw_eq)
+                # cv2.imwrite(folder + '/' + str(counter) + '.jpg', face_bw_eq)
                 print('Images Saved:' + str(counter))
-                cv2.imshow('Saved Face', face_bw_eq)  # Mostra la faccia che è stata salvata
+                # Mostra la faccia che è stata salvata
+                cv2.imshow('Saved Face', face_bw_eq)
 
             else:
+                cap_device = 0  # built-in camera of MacBook Pro 2018
+                cap = cv2.VideoCapture(cap_device)
+                cap.set(cv2.CAP_PROP_FPS, 60)  # newly added code
+                cfps = int(cap.get(cv2.CAP_PROP_FPS))
+                # port = 0
+                # ramp_frames = 30
+                # x = 1280
+                # y = 720
+                # camera = cv2.VideoCapture(port)
 
-                newFolder = folder + '/' + str(counter) + '.jpg'
-                cv2.imwrite(newFolder, frame)
-                tmp = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                # # Set Resolution
+                # camera.set(3, x)
+                # camera.set(4, y)
 
+                # # Adjust camera lighting
+                # for i in range(ramp_frames):
+                #     temp = camera.read()
+                # retval, im = camera.read()
+                # # cv2.imwrite(filename, im)
+                # #cv2.imwrite(folder + '/' + str(counter) + '.jpg', im)
+                # print("equalization")
+                # p2, p98 = np.percentile(im, (2, 98))
+                # img_rescale = exposure.rescale_intensity(
+                #     im, in_range=(p2, p98))
+                # cv2.imwrite(folder + '/' + str(counter) + '.jpg', img_rescale)
+                cv2.imwrite(folder + '/' + str(counter) + '.jpg', cfps)
 
-                newImage = photoBrightnessEvaluate(tmp, newFolder, frame)
-                newFaces = detector.detectMultiScale(newImage)
-                cut_face = cut_faces(frame, newFaces)  # Rimuove le parti inutili del volto
-                face_bw = cv2.cvtColor(cut_face[0], cv2.COLOR_BGR2GRAY)
-                face_bw_eq = cv2.equalizeHist(face_bw)  # Equalizzazione Istogramma
-                face_bw_eq = cv2.resize(face_bw_eq, (100, 100), interpolation=cv2.INTER_CUBIC)  # Effettua un Resizing dell'immagine in 100x100 pixel
-                # cv2.imshow('Face Recogniser', face_bw_eq)
-                cv2.imwrite(folder + '/' + str(counter) + '.jpg', face_bw_eq)
-                print('Images Saved:' + str(counter))
-                cv2.imshow('Saved Face', face_bw_eq)  # Mostra la faccia che è stata salvata
+                # del(camera)
 
-
-
-            cv2.imshow('Video Feed', frame)
+            # cv2.imshow('Video Feed', frame)
             cv2.waitKey(50)
 
     else:
@@ -103,11 +133,14 @@ def add_person() -> None:
         # Viene visualizzato un messaggi di errore in caso il folder sia già presente
         print("This name already exists.")
 
+
 '''
 Funzione che permette di riconoscere il viso il real-time
 :param lock: variabile che identifica la funziona di blocco schermo
 :return None
 '''
+
+
 def live(lock) -> None:
 
     cv2.namedWindow('Predicting for')
@@ -127,47 +160,59 @@ def live(lock) -> None:
         labels_dic[i] = person
         for image in os.listdir("people_folder/" + person):
 
-            images.append(cv2.imread('people_folder/' + person + '/' + image, 0))
+            images.append(cv2.imread(
+                'people_folder/' + person + '/' + image, 0))
             labels.append(i)
 
     labels = np.array(labels)
 
     # rec_eig = cv2.face.EigenFaceRecognizer_create()
-    rec_lbhp = cv2.face.LBPHFaceRecognizer_create()  # Crea un oggetto LBHP face recognizer
+    # Crea un oggetto LBHP face recognizer
+    rec_lbhp = cv2.face.LBPHFaceRecognizer_create()
     rec_lbhp.train(images, labels)  # Addestra il modello
     cv2.namedWindow('face')
     webcam = cv2.VideoCapture(0)
     while True:
 
         _, frame = webcam.read()
-        faces = face_cascade.detectMultiScale(frame, 1.3, 5)  # Prende le coordinate del volto nel frame
+        # Prende le coordinate del volto nel frame
+        faces = face_cascade.detectMultiScale(frame, 1.3, 5)
         if len(faces):
 
-            cut_face = cut_faces(frame, faces)  # Taglia la faccia per inserirla nel nostro modello predittivo
+            # Taglia la faccia per inserirla nel nostro modello predittivo
+            cut_face = cut_faces(frame, faces)
             face = cv2.cvtColor(cut_face[0], cv2.COLOR_BGR2GRAY)
             face = cv2.equalizeHist(face)  # Equalizzazione Istogramma
-            face = cv2.resize(face, (100, 100), interpolation=cv2.INTER_CUBIC)  # Ridimensiona l'immagine del volto.
+            # Ridimensiona l'immagine del volto.
+            face = cv2.resize(face, (100, 100), interpolation=cv2.INTER_CUBIC)
             cv2.imshow('face', face)
             collector = cv2.face.StandardCollector_create()
             rec_lbhp.predict_collect(face, collector)
-            conf = collector.getMinDist()  # Trova la faccia più vicina alla nostra (confrontando le distanze e selezionando la minima)
+            # Trova la faccia più vicina alla nostra (confrontando le distanze e selezionando la minima)
+            conf = collector.getMinDist()
             print('Confidence ', conf)
             pred = collector.getMinLabel()
             if conf < threshold:  # Se un match del volto è trovato
 
-                txt = labels_dic[pred].upper()  # Prendi il nome della persona, maiuscolo
+                # Prendi il nome della persona, maiuscolo
+                txt = labels_dic[pred].upper()
 
             else:
 
                 txt = 'Sconosciuto'  # Se non riconosciuto, segnalo come sconosciuto
-                if lock: #se lock è vera allora procedo con il blocco schermo
-                    loginPF = CDLL('/System/Library/PrivateFrameworks/login.framework/Versions/Current/login')
+                if lock:  # se lock è vera allora procedo con il blocco schermo
+                    loginPF = CDLL(
+                        '/System/Library/PrivateFrameworks/login.framework/Versions/Current/login')
                     result = loginPF.SACLockScreenImmediate()
 
-            cv2.putText(frame, txt, (faces[0][0], faces[0][1] - 10), cv2.FONT_HERSHEY_PLAIN, 3, (66, 53, 243), 2)  # Inserisce il testo nel frame corrente
+            # Inserisce il testo nel frame corrente
+            cv2.putText(frame, txt, (faces[0][0], faces[0][1] - 10),
+                        cv2.FONT_HERSHEY_PLAIN, 3, (66, 53, 243), 2)
             print(faces)
-            cv2.rectangle(frame, (faces[0][0], faces[0][1]), (faces[0][0] + faces[0][2], faces[0][1] + faces[0][3]), (255, 255, 0), 8)  # Crea un rettangolo attorno al volto
-            cv2.putText(frame, "ESC to exit", (5, frame.shape[0] - 10), cv2.FONT_HERSHEY_PLAIN, 1.3, (66, 53, 243), 2, cv2.LINE_AA)
+            cv2.rectangle(frame, (faces[0][0], faces[0][1]), (faces[0][0] + faces[0][2], faces[0]
+                          [1] + faces[0][3]), (255, 255, 0), 8)  # Crea un rettangolo attorno al volto
+            cv2.putText(frame, "ESC to exit", (
+                5, frame.shape[0] - 10), cv2.FONT_HERSHEY_PLAIN, 1.3, (66, 53, 243), 2, cv2.LINE_AA)
 
         cv2.imshow("Live", frame)  # Mostra il frame
 
@@ -176,11 +221,14 @@ def live(lock) -> None:
             destroy()
             break
 
+
 '''
 funzione che termina i processi di face recognition
 :param None
 :return None
 '''
+
+
 def destroy() -> None:
 
     cv2.destroyAllWindows()
