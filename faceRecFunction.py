@@ -4,13 +4,6 @@ import time
 import os
 from ctypes import CDLL
 
-from re import I, X
-from PIL import Image
-from math import sqrt
-import io
-from skimage import exposure
-from skimage import io
-
 face_cascade = cv2.CascadeClassifier(
     'haarcascade_frontalface_default.xml')  # Oggetto del face detector
 
@@ -57,7 +50,7 @@ def add_person() -> None:
 
         input("Verranno scattate 20 foto. Premere ENTER per avviare la procedura.")
         os.mkdir(folder)  # Crea un nuovo folder per salvare le foto
-        video = cv2.VideoCapture()
+        video = cv2.VideoCapture(0)
         # Carica l'Haarcascade per identificare il volto.
         detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         cv2.namedWindow('Video Feed', cv2.WINDOW_AUTOSIZE)
@@ -90,42 +83,11 @@ def add_person() -> None:
                     face_bw_eq, (100, 100), interpolation=cv2.INTER_CUBIC)
                 # cv2.imshow('Face Recogniser', face_bw_eq)
                 cv2.imwrite(folder + '/' + str(counter) + '.jpg', face_bw_eq)
-                # cv2.imwrite(folder + '/' + str(counter) + '.jpg', face_bw_eq)
                 print('Images Saved:' + str(counter))
                 # Mostra la faccia che è stata salvata
                 cv2.imshow('Saved Face', face_bw_eq)
 
-            else:
-                cap_device = 0  # built-in camera of MacBook Pro 2018
-                cap = cv2.VideoCapture(cap_device)
-                cap.set(cv2.CAP_PROP_FPS, 60)  # newly added code
-                cfps = int(cap.get(cv2.CAP_PROP_FPS))
-                # port = 0
-                # ramp_frames = 30
-                # x = 1280
-                # y = 720
-                # camera = cv2.VideoCapture(port)
-
-                # # Set Resolution
-                # camera.set(3, x)
-                # camera.set(4, y)
-
-                # # Adjust camera lighting
-                # for i in range(ramp_frames):
-                #     temp = camera.read()
-                # retval, im = camera.read()
-                # # cv2.imwrite(filename, im)
-                # #cv2.imwrite(folder + '/' + str(counter) + '.jpg', im)
-                # print("equalization")
-                # p2, p98 = np.percentile(im, (2, 98))
-                # img_rescale = exposure.rescale_intensity(
-                #     im, in_range=(p2, p98))
-                # cv2.imwrite(folder + '/' + str(counter) + '.jpg', img_rescale)
-                cv2.imwrite(folder + '/' + str(counter) + '.jpg', cfps)
-
-                # del(camera)
-
-            # cv2.imshow('Video Feed', frame)
+            cv2.imshow('Video Feed', frame)
             cv2.waitKey(50)
 
     else:
