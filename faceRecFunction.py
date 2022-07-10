@@ -114,7 +114,7 @@ def live(lock) -> None:
         if not person.startswith("."):
             people.append(person)
 
-    threshold = 80  # Soglia per l'algoritmo di riconoscimento facciale/distanza consentita
+    threshold = 100  # Soglia per l'algoritmo di riconoscimento facciale/distanza consentita
     # da un'altra faccia
 
     for i, person in enumerate(people):
